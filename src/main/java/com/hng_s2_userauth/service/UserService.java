@@ -3,14 +3,14 @@ package com.hng_s2_userauth.service;
 import com.hng_s2_userauth.dto.AddUserToOrgDto;
 import com.hng_s2_userauth.dto.CreateOrganisationDto;
 import com.hng_s2_userauth.dto.OrgResponse;
+import com.hng_s2_userauth.dto.UserRecordDto;
 import com.hng_s2_userauth.model.Organisation;
 import com.hng_s2_userauth.model.UserEntity;
 import com.hng_s2_userauth.repository.OrganisationRepository;
 import com.hng_s2_userauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -68,5 +68,37 @@ public class UserService {
 
         return ResponseEntity.status(200).body(orgDto);
     }
-}
 
+
+    public ResponseEntity<?> getUserRecord(String id, UserEntity user) {
+
+        Optional<UserEntity> loadUser = userRepository.findById(id);
+
+        if (loadUser.isEmpty()) {
+            return null;
+        }
+
+        UserEntity userEntity = loadUser.get();
+
+        boolean inOrg = false;
+        for (Organisation org : userEntity.getOrganisations()) {
+            // Check if the user belongs to the organisation
+            if (org.getUsers().stream().anyMatch(u -> u.getUserId().equals(user.getUserId()))) {
+                inOrg = true;
+                break;
+            }
+        }
+
+        if (!inOrg) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+        }
+
+
+        var datDto = new UserRecordDto.Data(userEntity.getUserId(), userEntity.getFirstName(), userEntity.getLastName(),
+                userEntity.getEmail(), userEntity.getPhone());
+
+        var reg = new UserRecordDto("success", "user record retrieval successful", datDto);
+
+        return ResponseEntity.status(200).body(reg);
+    }
+}

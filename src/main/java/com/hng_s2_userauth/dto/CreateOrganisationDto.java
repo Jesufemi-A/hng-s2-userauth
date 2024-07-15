@@ -1,13 +1,13 @@
 package com.hng_s2_userauth.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 
-
-
-
-public class createOrganisationDto {
-
+@Getter
+@Setter
+public class CreateOrganisationDto {
 
     @NotBlank
    private  String  name;

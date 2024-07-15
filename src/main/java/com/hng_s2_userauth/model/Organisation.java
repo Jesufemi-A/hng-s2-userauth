@@ -2,12 +2,16 @@ package com.hng_s2_userauth.model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "organisations")
+@Getter
+@Setter
 public class Organisation {
 
 

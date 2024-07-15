@@ -1,8 +1,10 @@
 package com.hng_s2_userauth.controller;
 
 
+import com.hng_s2_userauth.dto.LoginDto;
 import com.hng_s2_userauth.dto.RegisterDto;
 import com.hng_s2_userauth.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,9 +21,14 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDto registerdto){
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDto registerdto) {
 
         return authService.register(registerdto);
+    }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+
+        return authService.login(loginDto);
     }
 }

@@ -15,7 +15,6 @@ public class UserRecordDto {
     private String message;
     private Data data;
 
-
     @lombok.Data
     @AllArgsConstructor
     @NoArgsConstructor
