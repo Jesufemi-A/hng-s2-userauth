@@ -18,6 +18,9 @@ public class CreateOrgResponse {
     private Data data;
 
 
+    @lombok.Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static  class Data{
             private String orgId;
             private String name;

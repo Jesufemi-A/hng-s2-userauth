@@ -2,6 +2,7 @@ package com.hng_s2_userauth.service;
 
 import com.hng_s2_userauth.dto.AddUserToOrgDto;
 import com.hng_s2_userauth.dto.CreateOrganisationDto;
+import com.hng_s2_userauth.dto.OrgResponse;
 import com.hng_s2_userauth.model.Organisation;
 import com.hng_s2_userauth.model.UserEntity;
 import com.hng_s2_userauth.repository.OrganisationRepository;
@@ -47,10 +48,25 @@ public class UserService {
         org.getUsers().add(loadUser.get());
 
         return ResponseEntity.status(200).body(new AddUserToOrgDto("success",
-                 "User added to organisation successfully"));
+                "User added to organisation successfully"));
 
 
     }
 
+
+    public ResponseEntity<OrgResponse> getOrganisationRecord(String orgId, UserEntity user) {
+
+        Organisation org = organisationRepository.findByOrgId(orgId);
+
+        if (!org.getUsers().contains(user)) {
+            return null;
+        }
+
+        var dataDto = new OrgResponse.Data(orgId, org.getName(), org.getDescription());
+        var orgDto = new OrgResponse("success", "Organisation record retrieval successful", dataDto);
+
+
+        return ResponseEntity.status(200).body(orgDto);
+    }
 }
 
