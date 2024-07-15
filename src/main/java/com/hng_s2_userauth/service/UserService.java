@@ -34,7 +34,7 @@ public class UserService {
     }
 
 
-    public ResponseEntity<?> addUserToOrganisation(String orgId, String userId) {
+    public ResponseEntity<AddUserToOrgDto> addUserToOrganisation(String orgId, String userId) {
 
         Organisation org = organisationRepository.findByOrgId(orgId);
 
@@ -49,7 +49,6 @@ public class UserService {
 
         return ResponseEntity.status(200).body(new AddUserToOrgDto("success",
                 "User added to organisation successfully"));
-
 
     }
 

@@ -26,7 +26,7 @@ public class OrganisationController {
 
 
     @PostMapping("/organisations")
-    public ResponseEntity<CreateOrganisationDto> createOrganisation(@Valid @RequestBody CreateOrganisationDto createOrg,
+    public ResponseEntity<OrgResponse> createOrganisation(@Valid @RequestBody CreateOrganisationDto createOrg,
                                                                     @AuthenticationPrincipal UserEntity user) {
 
 
@@ -37,7 +37,7 @@ public class OrganisationController {
         var dataDto = new OrgResponse.Data(org.getOrgId(), org.getName(), org.getDescription());
         var createOrgDto = new OrgResponse("success", "Organisation created successfully", dataDto);
 
-        return ResponseEntity.status(201).body(createOrg);
+        return ResponseEntity.status(201).body(createOrgDto);
 
     }
 

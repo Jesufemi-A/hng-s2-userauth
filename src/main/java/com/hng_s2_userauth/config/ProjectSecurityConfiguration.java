@@ -1,6 +1,7 @@
 package com.hng_s2_userauth.config;
 
 
+import com.hng_s2_userauth.repository.UserRepository;
 import com.hng_s2_userauth.service.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,6 +27,7 @@ public class ProjectSecurityConfiguration {
 
 
     final JwtFilter jwtFilter;
+    UserRepository userRepository;
 
 
     @Bean
@@ -40,8 +43,6 @@ public class ProjectSecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(c -> {
-
-
                             c.requestMatchers("/auth/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/organisations/*").authenticated()
                                     .requestMatchers(HttpMethod.POST, "/api/organisations").authenticated()
@@ -51,6 +52,7 @@ public class ProjectSecurityConfiguration {
                                     .anyRequest().permitAll();
                         }
                 )
+                .userDetailsService(userDetailsService())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
@@ -62,5 +64,10 @@ public class ProjectSecurityConfiguration {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    UserDetailsService userDetailsService() {
+        return(email) -> userRepository.findByEmail(email).orElseThrow();
     }
 }
