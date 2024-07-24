@@ -1,9 +1,6 @@
 package com.hng_s2_userauth.service;
 
-import com.hng_s2_userauth.dto.AddUserToOrgDto;
-import com.hng_s2_userauth.dto.CreateOrganisationDto;
-import com.hng_s2_userauth.dto.OrgResponse;
-import com.hng_s2_userauth.dto.UserRecordDto;
+import com.hng_s2_userauth.dto.*;
 import com.hng_s2_userauth.model.Organisation;
 import com.hng_s2_userauth.model.UserEntity;
 import com.hng_s2_userauth.repository.OrganisationRepository;
@@ -11,10 +8,16 @@ import com.hng_s2_userauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -60,7 +63,7 @@ public class UserService {
         if (!org.getUsers().contains(user)) {
             return null;
         }
-
+        System.out.println("vjskndlss==============================");
         var dataDto = new OrgResponse.Data(orgId, org.getName(), org.getDescription());
         var orgDto = new OrgResponse("success", "Organisation record retrieval successful", dataDto);
 
@@ -70,6 +73,16 @@ public class UserService {
 
 
     public ResponseEntity<?> getUserRecord(String id, UserEntity user) {
+
+        if (id.equals(user.getUserId())) {
+            var datDto = new UserRecordDto.Data(user.getUserId(), user.getFirstName(), user.getLastName(),
+                    user.getEmail(), user.getPhone());
+
+            var reg = new UserRecordDto("success", "user record retrieval successful", datDto);
+
+            return ResponseEntity.status(200).body(reg);
+
+        }
 
         Optional<UserEntity> loadUser = userRepository.findById(id);
 
@@ -99,5 +112,36 @@ public class UserService {
         var reg = new UserRecordDto("success", "user record retrieval successful", datDto);
 
         return ResponseEntity.status(200).body(reg);
+    }
+
+
+    public ResponseEntity<?> getOrganisation(@AuthenticationPrincipal UserEntity user) {
+
+        Optional<UserEntity> loadU = userRepository.findByEmail(user.getEmail());
+
+        if (!loadU.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        UserEntity u = loadU.get();
+        Set<Organisation> organisations = u.getOrganisations();
+
+        for (var o : organisations){
+            System.out.println(o.toString());
+        }
+
+        List<GetOrganisationDto.Data.Organisation> orgList = organisations.stream()
+                .map(o -> new GetOrganisationDto.Data.Organisation(o.getOrgId(), o.getName(), o.getDescription()))
+                .collect(Collectors.toList());
+
+        for (var o : orgList){
+            System.out.println(o.toString());
+        }
+
+        GetOrganisationDto.Data dataDto = new GetOrganisationDto.Data(orgList);
+        GetOrganisationDto getOrgDto = new GetOrganisationDto("success", "Organisation list retrieval successful", dataDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(getOrgDto);
+
     }
 }
